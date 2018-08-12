@@ -5,7 +5,7 @@ import configparser
 class ClientInfo:
     id = ''
     secret = ''
-    user_agent = 'Reddit_Image_Scraper'
+    user_agent = 'praw'
 
 
 def get_client_info():
@@ -17,7 +17,16 @@ def get_client_info():
     return id, secret
 
 
+def get_img_urls(sub):
+    r = praw.Reddit(client_id=ClientInfo.id, client_secret=ClientInfo.secret, user_agent=ClientInfo.user_agent)
+    submissions = r.subreddit(sub).hot(limit=10)
+
+    return [submission.url for submission in submissions]
+
+
 if __name__ == '__main__':
 
     ClientInfo.id, ClientInfo.secret = get_client_info()
 
+    subreddit = input('Enter Subreddit: ')
+    print(get_img_urls(subreddit))
