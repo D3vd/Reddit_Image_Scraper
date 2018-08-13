@@ -6,7 +6,7 @@ import urllib.request
 class ClientInfo:
     id = ''
     secret = ''
-    user_agent = 'praw'
+    user_agent = 'Reddit_Image_Scraper'
 
 
 def get_client_info():
@@ -25,7 +25,8 @@ def get_img_urls(sub):
     return [submission.url for submission in submissions]
 
 
-def download_img(img_url, filename):
+def download_img(img_url, img_title, filename):
+    print('Downloading ' + img_title + '....')
     urllib.request.urlretrieve(img_url, filename)
 
 
@@ -34,12 +35,16 @@ if __name__ == '__main__':
     ClientInfo.id, ClientInfo.secret = get_client_info()
 
     subreddit = input('Enter Subreddit: ')
+    print()
     url_list = get_img_urls(subreddit)
     file_no = 1
 
     for url in url_list:
+
         file_name = 'result/{}.jpg'.format(file_no)
-        download_img(url, file_name)
+        download_img(url, url.split('/')[-1], file_name)
         file_no += 1
+
+    print('Done!')
 
 
