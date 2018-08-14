@@ -2,6 +2,9 @@ import praw
 import configparser
 import urllib.request
 
+from prawcore.exceptions import Redirect
+from urllib.error import HTTPError
+
 
 class ClientInfo:
     id = ''
@@ -19,15 +22,30 @@ def get_client_info():
 
 
 def get_img_urls(sub):
-    r = praw.Reddit(client_id=ClientInfo.id, client_secret=ClientInfo.secret, user_agent=ClientInfo.user_agent)
-    submissions = r.subreddit(sub).hot(limit=10)
+    try:
+        r = praw.Reddit(client_id=ClientInfo.id, client_secret=ClientInfo.secret, user_agent=ClientInfo.user_agent)
+        submissions = r.subreddit(sub).hot(limit=100)
 
-    return [submission.url for submission in submissions]
+        return [submission.url for submission in submissions]
+
+    except Redirect:
+        print("Invalid Subreddit!")
+        return 0
+
+    except HTTPError:
+        print("Too many Requests. Try again later!")
+        return 0
 
 
 def download_img(img_url, img_title, filename):
-    print('Downloading ' + img_title + '....')
-    urllib.request.urlretrieve(img_url, filename)
+    try:
+        print('Downloading ' + img_title + '....')
+        urllib.request.urlretrieve(img_url, filename)
+        return 1
+
+    except HTTPError:
+        print("Too many Requests. Try again later!")
+        return 0
 
 
 if __name__ == '__main__':
@@ -39,12 +57,14 @@ if __name__ == '__main__':
     url_list = get_img_urls(subreddit)
     file_no = 1
 
-    for url in url_list:
+    if url_list:
 
-        file_name = 'result/{}.jpg'.format(file_no)
-        download_img(url, url.split('/')[-1], file_name)
-        file_no += 1
+        for url in url_list:
 
-    print('Done!')
+            file_name = 'result/{}.jpg'.format(file_no)
+            status = download_img(url, url.split('/')[-1], file_name)
 
+            if not status:
+                break
 
+            file_no += 1
