@@ -3,6 +3,7 @@ import configparser
 import urllib.request
 
 from prawcore.exceptions import Redirect
+from prawcore.exceptions import ResponseException
 from urllib.error import HTTPError
 
 
@@ -34,6 +35,10 @@ def get_img_urls(sub):
 
     except HTTPError:
         print("Too many Requests. Try again later!")
+        return 0
+
+    except ResponseException:
+        print("Client info is wrong. Check again.")
         return 0
 
 
