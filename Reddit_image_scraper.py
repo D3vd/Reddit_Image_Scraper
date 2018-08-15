@@ -22,10 +22,10 @@ def get_client_info():
     return id, secret
 
 
-def get_img_urls(sub):
+def get_img_urls(sub, li):
     try:
         r = praw.Reddit(client_id=ClientInfo.id, client_secret=ClientInfo.secret, user_agent=ClientInfo.user_agent)
-        submissions = r.subreddit(sub).hot(limit=100)
+        submissions = r.subreddit(sub).hot(limit=li)
 
         return [submission.url for submission in submissions]
 
@@ -58,8 +58,9 @@ if __name__ == '__main__':
     ClientInfo.id, ClientInfo.secret = get_client_info()
 
     subreddit = input('Enter Subreddit: ')
+    num = int(input('Enter Limit: '))
     print()
-    url_list = get_img_urls(subreddit)
+    url_list = get_img_urls(subreddit, num)
     file_no = 1
 
     if url_list:
@@ -73,3 +74,6 @@ if __name__ == '__main__':
                 break
 
             file_no += 1
+
+    if file_no == num+1:
+        print("Successfully Completed!")
